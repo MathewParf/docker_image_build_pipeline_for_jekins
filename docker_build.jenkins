@@ -23,7 +23,8 @@ pipeline{
         stage("create docker image") {
             steps{
             echo "--------------Build Started--------------"
-            sh 'docker build -t mattparf/web_app_python:latest .'
+            dir ('dockerimage_files')
+                sh 'docker build -t mattparf/web_app_python:latest .'
             }
         }
         stage("push image to dokerhub") {
