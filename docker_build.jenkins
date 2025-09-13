@@ -1,38 +1,44 @@
-properties([disableConcurentBuilds()])
+properties([disableConcurrentBuilds()])
 
-pipeline{
-    agent{
+pipeline {
+    agent {
         label "docker"
     }
-    triggers { pollSCM('H/2 * * * *') }
+    
+    triggers {
+        pollSCM('H/2 * * * *')
+    }
+    
     options {
         buildDiscarder(logRotator(numToKeepStr: '10', artifactNumToKeepStr: '10'))
         timestamps()
     }
+    
     stages {
-        stage("docker login"){
-            steps{
+        stage("docker login") {
+            steps {
                 echo "--------------docker login--------------"
                 withCredentials([usernamePassword(credentialsId: 'dockerhub_mattparf', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-                    sh """
-                    docker login -u $USERNAME -p $PASSWORD
-                    """
+                    sh '''
+                        echo $PASSWORD | docker login -u $USERNAME --password-stdin
+                    '''
                 }
             }
         }
+
         stage("create docker image") {
-            steps{
-            echo "--------------Build Started--------------"
-            dir ('dockerimage_files')
-                sh 'docker build -t mattparf/web_app_python:latest .'
+            steps {
+                echo "--------------Build Started--------------"
+                dir('dockerimage_files') {
+                    sh 'docker build -t mattparf/web_app_python:latest .'
+                }
             }
         }
+
         stage("push image to dokerhub") {
-            steps{
+            steps {
                 echo "--------------pushing image to dockerhub--------------"
-                sh """
-                docker push mattparf/web_app_python:latest
-                """
+                sh 'docker push mattparf/web_app_python:latest'
             }
         }
     }
