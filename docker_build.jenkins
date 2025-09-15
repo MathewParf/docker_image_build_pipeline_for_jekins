@@ -31,6 +31,7 @@ pipeline {
                 echo "--------------Build Started--------------"
                 dir('dockerimage_files') {
                     sh 'docker build -t mattparf/web_app_python:latest .'
+                echo "--------------Build Ended--------------"
                 }
             }
         }
@@ -39,6 +40,7 @@ pipeline {
             steps {
                 echo "--------------pushing image to dockerhub--------------"
                 sh 'docker push mattparf/web_app_python:latest'
+                echo "--------------pushing end--------------"
             }
         }
     }
